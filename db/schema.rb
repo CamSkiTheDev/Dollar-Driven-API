@@ -10,10 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_27_184340) do
+ActiveRecord::Schema.define(version: 2021_06_27_195738) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "properties", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "street_adderss"
+    t.integer "estimated_value"
+    t.integer "after_repair_value"
+    t.integer "estimated_rent"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_properties_on_user_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "full_name"
@@ -23,4 +34,5 @@ ActiveRecord::Schema.define(version: 2021_06_27_184340) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "properties", "users"
 end
