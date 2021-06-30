@@ -18,6 +18,42 @@ class PropertiesController < ApplicationController
   def create
     @property = Property.new(property_params)
     @property.user_id = @user.id
+
+    # gets sales price data from api
+    sales_price_response = Faraday.get('https://realty-mole-property-api.p.rapidapi.com/salePrice',
+       {
+        address: property_params['street_adderss']
+       },
+       {
+         'x-rapidapi-key' => '8530900db9msh81bd1903affac7dp1829a3jsn6a3cd0bd93e0',
+         'x-rapidapi-host' => 'realty-mole-property-api.p.rapidapi.com'
+       }
+    )
+
+    # Parses json data from response
+    sales_data = JSON.parse(sales_price_response.body)
+
+    # Sets property information using json data from response
+    @property.estimated_value = sales_data['priceRangeLow']
+    @property.after_repair_value = sales_data['priceRangeHigh']
+
+    # gets rent price data from api
+    rent_estimation_response = Faraday.get('https://realty-mole-property-api.p.rapidapi.com/rentalPrice',
+      {
+        address: property_params['street_adderss']
+      },
+      {
+        'x-rapidapi-key' => '8530900db9msh81bd1903affac7dp1829a3jsn6a3cd0bd93e0',
+        'x-rapidapi-host' => 'realty-mole-property-api.p.rapidapi.com'
+      }
+    )
+
+    # Parses json data from response
+    rent_data = JSON.parse(rent_estimation_response.body)
+
+    # Sets property information using json data from response
+    @property.estimated_rent = rent_data['rentRangeHigh']
+
     
     if @property.save
       render json: @property, status: :created, location: @property
